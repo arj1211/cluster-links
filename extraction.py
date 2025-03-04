@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import BytesIO
 
 import requests
+import trafilatura
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from sentence_transformers import SentenceTransformer
@@ -37,7 +38,7 @@ fh_stats.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message
 logger_stats.addHandler(fh_stats)
 
 # --- Global Extraction Statistics (Thread-Safe) ---
-extraction_stats = {"total": 0, "success": 0, "fail": 0, "fail_types": {}}
+extraction_stats = {"total": 0, "success": 0, "fail": 0, "ignored": 0, "fail_types": {}}
 stats_lock = threading.Lock()
 
 
@@ -47,8 +48,11 @@ def update_stats(success: bool, error_type: str = None):
         if success:
             extraction_stats["success"] += 1
         else:
-            extraction_stats["fail"] += 1
-            if error_type:
+            if error_type == "Ignoring URL":
+                extraction_stats["ignored"] += 1
+            else:
+                extraction_stats["fail"] += 1
+            if error_type and (error_type != "Ignoring URL"):
                 extraction_stats["fail_types"][error_type] = (
                     extraction_stats["fail_types"].get(error_type, 0) + 1
                 )
@@ -114,12 +118,18 @@ def extract_text(
         response.raise_for_status()
         content_type = response.headers.get("Content-Type", "")
         if "text/html" in content_type:
-            soup = BeautifulSoup(response.text, "html.parser")
-            paragraphs = soup.find_all("p")
-            text = " ".join(p.get_text() for p in paragraphs)
-            if not text.strip():
-                text = soup.get_text(separator=" ", strip=True)
-            text = clean_text(text)
+            # Use trafilatura to extract main content
+            downloaded = response.text
+            extracted = trafilatura.extract(downloaded)
+            if extracted:
+                text = clean_text(extracted)
+            else:
+                # Fallback: use BeautifulSoup if trafilatura fails
+                soup = BeautifulSoup(downloaded, "html.parser")
+                paragraphs = soup.find_all("p")
+                text = clean_text(" ".join(p.get_text() for p in paragraphs))
+                if not text.strip():
+                    text = clean_text(soup.get_text(separator=" ", strip=True))
             update_stats(True)
             logger_extraction.info(f"Successfully extracted HTML text for URL: {url}")
             return text
@@ -161,9 +171,10 @@ def parallel_extraction(
     rate_limiting_domains: list[str],
     ignore_domains: list[str] = [],
 ) -> list[str]:
-    """Extract texts from URLs in parallel with progress indication."""
-    texts = []
+    """Extract texts from URLs in parallel with order preservation."""
+    texts = [None] * len(urls)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit each job along with its index.
         futures = {
             executor.submit(
                 extract_text,
@@ -171,13 +182,15 @@ def parallel_extraction(
                 create_session(),
                 rate_limiting_domains,
                 ignore_domains,
-            ): url
-            for url in urls
+            ): idx
+            for idx, url in enumerate(urls)
         }
         for future in tqdm(
             as_completed(futures), total=len(futures), desc="Extracting texts"
         ):
-            texts.append(future.result())
+            idx = futures[future]
+            texts[idx] = future.result()
+    # Fallback: if extraction fails or text is too short, use the URL.
     texts = [txt if txt and len(txt) > 50 else url for txt, url in zip(texts, urls)]
     return texts
 
