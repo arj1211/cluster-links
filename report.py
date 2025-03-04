@@ -1,10 +1,14 @@
 import collections
-from sklearn.feature_extraction.text import TfidfVectorizer
+
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 def extract_keywords_from_text(text, top_n=5):
     # Advanced keyword extraction: using unigrams and bigrams.
-    vectorizer = TfidfVectorizer(stop_words='english', max_features=1000, ngram_range=(1,2), min_df=1)
+    vectorizer = TfidfVectorizer(
+        stop_words="english", max_features=1000, ngram_range=(1, 2), min_df=1
+    )
     try:
         tfidf = vectorizer.fit_transform([text])
         feature_array = np.array(vectorizer.get_feature_names_out())
@@ -13,6 +17,7 @@ def extract_keywords_from_text(text, top_n=5):
         return ", ".join(top_n_keywords)
     except Exception as e:
         return "N/A"
+
 
 def generate_cluster_report(urls, texts, labels, output_file="cluster_report.txt"):
     cluster_data = collections.defaultdict(list)
