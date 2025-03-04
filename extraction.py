@@ -104,7 +104,7 @@ def extract_text(
         update_stats(
             False, error_type="Ignoring URL"
         )  # Consider it "failed" if url ignored
-        return url  # return the URL itself as a fallback
+        return ""  # return the URL itself as a fallback
     logger_extraction.info(f"Fetching URL: {url}")
     try:
         # Custom preprocessing: delay if URL matches any rate-limited domain
