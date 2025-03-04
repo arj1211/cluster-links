@@ -4,5 +4,9 @@
         "domainA.com",
         "domainB.ca",
         "domainC.org"
+    ],
+    "IGNORE_DOMAINS": [
+        "youtube.com",
+        "youtu.be"
     ]
 }
