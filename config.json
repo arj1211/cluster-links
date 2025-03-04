@@ -1,0 +1,8 @@
+{
+    "LINKS_FILE": "path/to/links.txt",
+    "RATE_LIMITING_DOMAINS": [
+        "domainA.com",
+        "domainB.ca",
+        "domainC.org"
+    ]
+}

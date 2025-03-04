@@ -1,0 +1,7 @@
+requests>=2.25.1
+beautifulsoup4>=4.9.3
+tqdm>=4.62.3
+sentence-transformers>=2.2.0
+hdbscan>=0.8.28
+scikit-learn>=1.0.2
+pdfminer.six>=20211012
