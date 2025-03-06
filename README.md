@@ -4,6 +4,13 @@
 
 This project is a robust, configurable pipeline for extracting, cleaning, embedding, and clustering web links based on their topical content. It aims to help you automatically organize large collections of URLs (such as bookmarks or research links) into semantically meaningful groups.
 
+```mermaid
+flowchart TD
+    A[Input List of Weblinks] --> B[Extract Textual Semantic Representation]
+    B --> C[Compute Embedding per Weblink]
+    C --> D[Cluster Weblinks]
+```
+
 ## Key Features
 
 - **Configurable Input:**  
