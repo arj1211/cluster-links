@@ -10,15 +10,15 @@ from report import generate_cluster_report
 def main():
     config = load_config()  # Loads config.json
     links_file = config.get("LINKS_FILE", "links.txt")
+    rate_limiting_domains = config.get("RATE_LIMITING_DOMAINS", [])
+    ignore_domains = config.get("IGNORE_DOMAINS", [])
+
     urls = get_links(links_file)
     if not urls:
         print("No URLs found. Exiting.")
         return
-    rate_limiting_domains = config.get("RATE_LIMITING_DOMAINS", [])
-    ignore_domains = config.get("IGNORE_DOMAINS", [])
 
     print("Fetching content and computing embeddings in parallel...")
-    # Pass the rate limiting domains from config.
     embeddings, texts = get_embeddings(
         urls,
         max_workers=10,
@@ -37,9 +37,9 @@ def main():
     print("Hierarchical Cluster labels:", hier_labels)
 
     print("Generating cluster reports...")
-    generate_cluster_report(
-        urls, texts, hdbscan_labels, output_file="hdbscan_cluster_report.txt"
-    )
+    # generate_cluster_report(
+    #     urls, texts, hdbscan_labels, output_file="hdbscan_cluster_report.txt"
+    # )
     generate_cluster_report(
         urls, texts, hier_labels, output_file="hierarchical_cluster_report.txt"
     )

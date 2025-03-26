@@ -1,25 +1,30 @@
 import collections
 
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+from keybert import KeyBERT
+from sentence_transformers import SentenceTransformer
+
+# Initialize KeyBERT with an SBERT model.
+kw_model = KeyBERT(model=SentenceTransformer("all-MiniLM-L6-v2"))
 
 
-def extract_keywords_from_text(text, top_n=5):
-    # Advanced keyword extraction: using unigrams and bigrams.
-    vectorizer = TfidfVectorizer(
-        stop_words="english", max_features=1000, ngram_range=(1, 2), min_df=1
-    )
+def extract_keywords_from_text(text: str, top_n: int = 5) -> str:
+    """Extracts semantic keywords using KeyBERT."""
     try:
-        tfidf = vectorizer.fit_transform([text])
-        feature_array = np.array(vectorizer.get_feature_names_out())
-        tfidf_sorting = np.argsort(tfidf.toarray()).flatten()[::-1]
-        top_n_keywords = feature_array[tfidf_sorting][:top_n]
-        return ", ".join(top_n_keywords)
+        keywords = kw_model.extract_keywords(
+            text, keyphrase_ngram_range=(1, 2), stop_words="english", top_n=top_n
+        )
+        # Return a comma-separated string of the keywords.
+        return ", ".join([kw[0] for kw in keywords])
     except Exception as e:
         return "N/A"
 
 
-def generate_cluster_report(urls, texts, labels, output_file="cluster_report.txt"):
+def generate_cluster_report(
+    urls: list[str],
+    texts: list[str],
+    labels: list[int],
+    output_file: str = "cluster_report.txt",
+):
     cluster_data = collections.defaultdict(list)
     for url, text, label in zip(urls, texts, labels):
         cluster_data[label].append((url, text))

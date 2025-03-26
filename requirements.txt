@@ -5,3 +5,5 @@ sentence-transformers>=2.2.0
 hdbscan>=0.8.28
 scikit-learn>=1.0.2
 pdfminer.six>=20211012
+trafilatura>=0.9.2
+keybert>=0.6.0
