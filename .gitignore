@@ -1,3 +1,6 @@
+*.csv
+*.html
+
 # Config file holding parameters (see example.config.json for structure)
 config.json
 
