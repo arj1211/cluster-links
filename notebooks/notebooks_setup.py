@@ -8,6 +8,10 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 # Get the src directory path
 SRC_DIR = Path(__file__).resolve().parent.parent / "src"
 
+# Get the data input/output directories
+DATA_INPUT_DIR = ROOT_DIR.joinpath("data/input")
+DATA_OUTPUT_DIR = ROOT_DIR.joinpath("data/output")
+
 
 def setup():
     """Set up the notebook environment."""
