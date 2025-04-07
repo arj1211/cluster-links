@@ -8,5 +8,6 @@
     "IGNORE_DOMAINS": [
         "youtube.com",
         "youtu.be"
-    ]
+    ],
+    "GROQ_API_KEY": "<your-groq-api-key>"
 }
