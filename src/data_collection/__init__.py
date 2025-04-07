@@ -1,5 +1,6 @@
-from .BookmarkCollector import BookmarkCollector
-from .ChromeBookmarkCollector import ChromeBookmarkCollector
+from .BookmarkLoader import BookmarkLoader
+from .ChromeBookmarkLoader import ChromeBookmarkLoader
+from .ClusterWMBookmarkLoader import ClusterWMBookmarkLoader
 from .models import (
     BookmarkFolder,
     BookmarkLink,
@@ -9,8 +10,9 @@ from .models import (
 )
 
 __all__ = [
-    "BookmarkCollector",
-    "ChromeBookmarkCollector",
+    "BookmarkLoader",
+    "ChromeBookmarkLoader",
+    "ClusterWMBookmarkLoader",
     "BookmarksRoot",
     "BookmarkFolder",
     "BookmarkLink",

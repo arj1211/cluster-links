@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
 
-class BookmarkCollector(ABC):
+class BookmarkLoader(ABC):
     def __init__(self, file_path: Union[str, Path], **kwargs):
         """Initialize path to bookmarks file and process bookmarks"""
         self.file_path = Path(file_path) if isinstance(file_path, str) else file_path

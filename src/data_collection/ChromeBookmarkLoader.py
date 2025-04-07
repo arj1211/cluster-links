@@ -1,13 +1,16 @@
-from .BookmarkCollector import BookmarkCollector
+from .BookmarkLoader import BookmarkLoader
 
 
-class ChromeBookmarkCollector(BookmarkCollector):
-    """Collector for Chrome bookmarks export."""
+class ChromeBookmarkLoader(BookmarkLoader):
+    """Loader for Chrome bookmarks export."""
 
     def process_bookmarks(self, pre_clean=True, **kwargs) -> None:
         """Process Chrome bookmarks HTML file."""
         if pre_clean:
-            self._clean_bookmarks_file()
+            self.file_path, self._original_file_path = (
+                self._clean_bookmarks_file(),
+                self.file_path,
+            )
         from bs4 import BeautifulSoup
 
         self.soup = BeautifulSoup(
@@ -15,6 +18,11 @@ class ChromeBookmarkCollector(BookmarkCollector):
         )
         self.root_element = self._get_root_dl()
         self.bookmarks = self._parse_dl(self.root_element)
+        if pre_clean:
+            import os
+
+            os.remove(self.file_path)
+            self.file_path = self._original_file_path
 
     def _get_root_dl(self):
         """Get the root DL element from the HTML."""
@@ -58,7 +66,6 @@ class ChromeBookmarkCollector(BookmarkCollector):
 
     def _clean_bookmarks_file(self):
         """Clean the bookmarks file by removing <p> and <DT> tags."""
-        # import shutil
         from datetime import datetime
 
         tmpfname = f"tmp{round(datetime.now().timestamp())}.html"
@@ -70,6 +77,4 @@ class ChromeBookmarkCollector(BookmarkCollector):
             for line in fin:
                 fout.write(line.replace("<p>", "").replace("<DT>", ""))
 
-        # shutil.move(tmp_path, self.file_path)
-
-        self.file_path = tmp_path
+        return tmp_path
